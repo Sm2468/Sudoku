@@ -11,10 +11,10 @@ getal = ""
 # de sudokus uit dit document gaan we veranderen naar de vorm van sudoku-example,
 # zodat we onderstaande code daarvoor kunnen gebruiken.
 size = 9
-maxvar = 0
 
 
 def readin(file):
+    maxvar = 0
     cnf = list()
     cnf.append(list())
     for line in file:
@@ -49,19 +49,12 @@ def main():
 
         Truths.append(TruthValue(number, 1))
         for clause in clauses:
-            if len(clause) == 1:
-                if int(clause[0]) > 0:
-                    Truths.append(TruthValue(clause[0], 1))
-                else:
-                    Truths.append(TruthValue(-clause[0], 0))
-                
-
-
             if str(number) in clause:
                 clause.pop(number)
-
-
-
+            if len(clause) == 1:
+                Truths.append(TruthValue(clause[0], 1))
+                Truths.append(TruthValue(-clause[0], 0))
+                print(Truths)
 
 
     #Open a file named numbers.txt

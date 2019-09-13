@@ -1,5 +1,7 @@
-from TruthValue import TruthValue
-#from readin import readin
+from read import readin
+from Difference import Diff
+from unitcheck import unit_check
+from purelit import pure
 
 numbers_filled_in = []
 numbers_not_possible = []
@@ -11,50 +13,79 @@ getal = ""
 # de sudokus uit dit document gaan we veranderen naar de vorm van sudoku-example,
 # zodat we onderstaande code daarvoor kunnen gebruiken.
 size = 9
+truthvalues={}
 
-
-def readin(file):
-    maxvar = 0
-    cnf = list()
-    cnf.append(list())
-    for line in file:
-        tokens = line.split()
-        if len(tokens) != 0 and tokens[0] not in ("p", "c"):
-            for tok in tokens:
-                lit = int(tok)
-                maxvar = max(maxvar, abs(lit))
-                if lit == 0:
-                    cnf.append(list())
-                else:
-                    cnf[-1].append(lit)
-
-    assert len(cnf[-1]) == 0
-    cnf.pop()
-
-    return cnf
 
 def main():
     sudoku_file = open('sudoku-example.txt', 'r')
     file_contents = sudoku_file.readlines()
+    sudoku_unsolved = readin(file_contents)
 
     sudoku_rules = open('sudoku-rules.txt', 'r')
     rules = sudoku_rules.readlines()
     sudoku_rules.close()
+    #clauses = readin(rules)
+    #for filled_in in sudoku_unsolved:
+    #    clauses.insert(0, filled_in)
+    #print(clauses)
 
-    Truths = []
+    clauses = [[2, -4], [4, 3], [-3, -2]]
+    # make list to keep track of pure literals
+    negative_literals = []
+    positive_literals = []
+    positive_literals = pure(clauses, positive_literals, negative_literals)[0]
+    negative_literals = pure(clauses, positive_literals, negative_literals)[1]
 
-    sudoku_unsolved = readin(file_contents)
-    clauses = readin(rules)
-    for number in sudoku_unsolved:
+    print(clauses)
+    print(positive_literals)
+    print(negative_literals)
 
-        Truths.append(TruthValue(number, 1))
-        for clause in clauses:
-            if str(number) in clause:
-                clause.pop(number)
-            if len(clause) == 1:
-                Truths.append(TruthValue(clause[0], 1))
-                Truths.append(TruthValue(-clause[0], 0))
-                print(Truths)
+    stuck = 0
+    #clauses.insert(0, [122, -122])
+    while clauses:
+        if not stuck:
+            for clause in clauses:
+                print(clause)
+
+                # check for tautology
+                for variable in clause:
+                    if -variable in clause:
+                        print("tautology")
+                        clause.remove(-variable)
+                        clauses.remove(clause)
+
+                # check for pure literal
+                list_of_literals = Diff(truthvalues, positive_literals, negative_literals)
+
+
+                # check for unit clause
+                if len(clause) == 1:
+                    unit_check(clause, positive_literals, negative_literals, truthvalues)
+                    clauses.remove(clause)
+
+                # update list of clauses
+                for truthvalue in truthvalues:
+                    if truthvalue in clause:
+                        if clause in clauses:
+                            if truthvalues[truthvalue]:
+                                clauses.remove(clause)
+                            else:
+                                clause.remove(truthvalue)
+
+                pure(clauses, positive_literals, negative_literals)
+
+
+    #else:
+    #    print("split")
+
+
+        #for value in truthvalues:
+         #   if value in clause:
+
+
+
+
+    #print(truthvalues)
 
 
     #Open a file named numbers.txt

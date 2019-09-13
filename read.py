@@ -1,9 +1,8 @@
 def readin(file):
+    maxvar = 0
     cnf = list()
     cnf.append(list())
-    maxvar = 0
-
-    for line in in_data:
+    for line in file:
         tokens = line.split()
         if len(tokens) != 0 and tokens[0] not in ("p", "c"):
             for tok in tokens:
@@ -17,5 +16,4 @@ def readin(file):
     assert len(cnf[-1]) == 0
     cnf.pop()
 
-    print(cnf)
-    print(maxvar)
+    return cnf

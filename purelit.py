@@ -11,5 +11,6 @@ def pure(clauses, positive_literals, negative_literals):
             else:
                 if literal not in positive_literals:
                     positive_literals.append(literal)
+    all_literals = positive_literals + negative_literals
 
-    return[positive_literals, negative_literals]
+    return[positive_literals, negative_literals, all_literals]

@@ -1,7 +1,8 @@
 from read import readin
-from Difference import Diff
+from Difference import pure_check
 from unitcheck import unit_check
 from purelit import pure
+from split import split
 
 numbers_filled_in = []
 numbers_not_possible = []
@@ -17,6 +18,7 @@ truthvalues={}
 
 
 def main():
+    # inlezen van sudokus, maar voor nu gebruiken we nog het simpele voorbeeld.
     sudoku_file = open('sudoku-example.txt', 'r')
     file_contents = sudoku_file.readlines()
     sudoku_unsolved = readin(file_contents)
@@ -29,135 +31,110 @@ def main():
     #    clauses.insert(0, filled_in)
     #print(clauses)
 
-    clauses = [[2, -4], [4, 3], [-3, -2]]
-    # make list to keep track of pure literals
+    # voorbeeld om te debuggen
+    clauses = [[2, -4], [4, 3], [-5], [-3, -2], [1, -1], [6, -5]]
+
+    # make list to keep track of negative and positive literals that have no truth-value yet
     negative_literals = []
     positive_literals = []
-    positive_literals = pure(clauses, positive_literals, negative_literals)[0]
-    negative_literals = pure(clauses, positive_literals, negative_literals)[1]
-
-    print(clauses)
-    print(positive_literals)
-    print(negative_literals)
+    all_literals = []
+    positive_literals, negative_literals, all_literals = pure(clauses, positive_literals, negative_literals)
 
     stuck = 0
-    #clauses.insert(0, [122, -122])
-    while clauses:
+    # zolang er nog clauseszijn om opgelost te worden, gaan we door met keuzes maken
+    while clauses != [[]]:
+
+        # zolang er nog een simpele keuze te maken is, gaan we dat doen
         if not stuck:
+            stuck = 1
+
+            # kijk per clause of er een tautologie in zit of het unit variable is
             for clause in clauses:
-                print(clause)
+                if clause:
+                    print(clauses)
+                    print(clause)
 
-                # check for tautology
-                for variable in clause:
-                    if -variable in clause:
-                        print("tautology")
-                        clause.remove(-variable)
+                    # check for tautology
+                    for literal in clause:
+                        if -literal in clause:
+                            print("tautology")
+
+                            # remove -literal zodat we geen probleem met for loop krijgen
+                            clause.remove(-literal)
+                            clauses.remove(clause)
+
+                            # stuck veranderen zodat we nogmaals voor simpele oplossing gaan zoeken
+                            # (kan nu weer wat verandert zijn waardoor dit opnieuw kan)
+                            stuck = 0
+
+                    # check for unit clause
+                    if len(clause) == 1:
+                        print("unit")
+
+                        # unit_check(clause, positive_literals, negative_literals, all_literals, truthvalues)
+                        unit_clause = clause[0]
+                        truthvalues[unit_clause] = 1
+                        truthvalues[-unit_clause] = 0
+
+                        # truth value assigned, so literals can be removed from lists
+                        # (trying to find a better way to do this)
+                        all_literals.remove(unit_clause)
+                        if unit_clause in negative_literals:
+                            negative_literals.remove(unit_clause)
+                        if -unit_clause in negative_literals:
+                            negative_literals.remove(-unit_clause)
+                        if unit_clause in positive_literals:
+                            positive_literals.remove(unit_clause)
+                        if -unit_clause in positive_literals:
+                            positive_literals.remove(-unit_clause)
+
                         clauses.remove(clause)
+                        stuck = 0
 
-                # check for pure literal
-                list_of_literals = Diff(truthvalues, positive_literals, negative_literals)
+                # gets difference of negative and positive literals, so gives the pure literals
+                list_of_pure_literals = pure_check(positive_literals, negative_literals)
+                print("list of literals")
+                print(list_of_pure_literals)
+                for literal in list_of_pure_literals:
+                    truthvalues[literal] = 1
+                    truthvalues[-literal] = 0
 
+                    # denk dat hier iets fout gaat
+                    all_literals.remove(literal)
+                    all_literals.remove(-literal)
 
-                # check for unit clause
-                if len(clause) == 1:
-                    unit_check(clause, positive_literals, negative_literals, truthvalues)
-                    clauses.remove(clause)
+                # als de lijst niet leeg is, verwijder de lijst,
+                # zodat we de volgende keer weer dezelfde naam kunnen gebruiken voor de lijst.
+                if list_of_pure_literals:
+                    del list_of_pure_literals
+                    stuck = 0
 
-                # update list of clauses
-                for truthvalue in truthvalues:
-                    if truthvalue in clause:
-                        if clause in clauses:
-                            if truthvalues[truthvalue]:
-                                clauses.remove(clause)
-                            else:
-                                clause.remove(truthvalue)
+                    # update list of clauses
+                    for clause in clauses:
+                        for truthvalue in truthvalues:
+                            if truthvalue in clause:
 
-                pure(clauses, positive_literals, negative_literals)
+                                # extra if loop omdat ik tussendoor clauses remove, doet anders raar...
+                                if clause in clauses:
 
+                                    # verwijder de clause waarin een waarde staat die al waar is.
+                                    if truthvalues[truthvalue]:
+                                        clauses.remove(clause)
 
-    #else:
-    #    print("split")
+                                    # verwijder een literal uit een clause waarvan je weet dat die niet waar is.
+                                    else:
+                                        clause.remove(truthvalue)
 
+                    # denk niet dat deze hier hoeft, maar laat hem voor zekerheid nog even staan
+                    # pure(clauses, positive_literals, negative_literals)
+        else:
+            decisions = []
+            split(all_literals, decisions)
+        # print(truthvalues)
 
-        #for value in truthvalues:
-         #   if value in clause:
-
-
-
-
-    #print(truthvalues)
-
-
-    #Open a file named numbers.txt
-    #sudoku_file = open('sudoku-example.txt','r')
-
-    # read the numbers on the file
-    #file_contents = sudoku_file.read()
-
-    #numbers_filled_in = file_contents.split(" 0\n")
-    #numbers_filled_in.remove("")
-
-    # Close the the numbers file
-    #sudoku_file.close()
-
-    # Print the data that was inside the file
-    #print(file_contents)
-    #print(numbers_filled_in)
-    #first_line = numbers_filled_in[0]
-    #variables = first_line.split(" ")[2]
-    #number_of_clauses = first_line.split(" ")[3]
-    #numbers_filled_in.pop(0)
-    #for number in numbers_filled_in:
-
-        # if a number is filled in, set all other numbers on that position to negative
-        #if number != "":
-
-            #row = number[0]
-            #column = number[1]
-            #getal = number[2]
-
-            #statements.append(number)
-            #print(number+ " number ")
-            #print(getal)
-            #for i in range(1, size+1):
-                #new_number = row + column
-                #if str(i) != getal:
-                    #new_number = new_number+str(i)
-                    #print(new_number + " new")
-                    #numbers_not_possible.append(new_number)
-                    #statements.append("-" + new_number)
-                    # if a number is filled in, set every position in the same column, row and box negative for that number.
-                #else:
-                    #if i != row:
-                        #new_number = str(i) + column + getal
-                        #numbers_not_possible.append(new_number)
-                        #statements.append("-" + new_number)
-                    #if i != column:
-                        #new_number = row + str(i) + getal
-                        #numbers_not_possible.append(new_number)
-                        #statements.append("-" + new_number)
+    print(truthvalues)
 
 
-
-    #print(numbers_not_possible)
-    #print(statements)
-
-    # Open a file named numbers.txt
-    #clauses = open('sudoku-rules.txt', 'r')
-
-    # read the numbers on the file
-    #
-
-
-    #numbers_filled_in = file_contents.split(" 0\n").ToList()
-    #numbers_filled_in.pop(0)
-
-    # Close the the numbers file
-    #clauses.close()
-
-    # Print the data that was inside the file
-    # print(file_contents)
-    #print(numbers_filled_in)
 
 # Call the main function
 main()

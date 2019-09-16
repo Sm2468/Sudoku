@@ -1,7 +1,14 @@
-def Diff(truthvalues, listpos, listneg):
-    list_difference = [i for i in listpos + listneg if (i not in listpos or -i not in listneg) or (-i not in listpos
-                                                                                                   or i not in listneg)]
-    for literal in list_difference:
-        truthvalues[literal] = 1
-        truthvalues[-literal] = 0
-    return list_difference
+def pure_check(listpos, listneg):
+    list_difference = []
+    for i in listpos + listneg:
+        if i > 0:
+            if i not in listpos or -i not in listneg:
+                list_difference.append(i)
+        else:
+            if -i not in listpos or i not in listneg:
+                list_difference.append(i)
+
+    print("diff")
+    print(list_difference)
+
+    return [list_difference]

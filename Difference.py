@@ -11,4 +11,4 @@ def pure_check(listpos, listneg):
     print("diff")
     print(list_difference)
 
-    return [list_difference]
+    return list_difference

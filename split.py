@@ -1,11 +1,12 @@
 import random
 
 
-def split(literals, decisions):
-    # hierin wil ik eerst random splitten en dan heuristiek toevoegen, maar daar ga ik morgen aan werken
-    # (dit klopt nog niet)
+def random_choice(literals):
+    # hierin wil ik eerst random splitten en dan heuristiek toevoegen
 
-    choice = random.choice(literals)
-    decisions.append(choice)
-    print("lit")
+    new_choice = random.choice(literals)
+
+    print(new_choice)
     print(literals)
+
+    return new_choice

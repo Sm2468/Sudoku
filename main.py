@@ -1,8 +1,9 @@
 from read import readin
 from Difference import pure_check
 from unitcheck import unit_check
-from purelit import pure
-from split import split
+from purelit import get_not_assigned_literals
+from split import random_choice
+from updateclauses import update
 
 numbers_filled_in = []
 numbers_not_possible = []
@@ -14,7 +15,9 @@ getal = ""
 # de sudokus uit dit document gaan we veranderen naar de vorm van sudoku-example,
 # zodat we onderstaande code daarvoor kunnen gebruiken.
 size = 9
-truthvalues={}
+truthvalues = {}
+decisions = []
+
 
 
 def main():
@@ -38,99 +41,112 @@ def main():
     negative_literals = []
     positive_literals = []
     all_literals = []
-    positive_literals, negative_literals, all_literals = pure(clauses, positive_literals, negative_literals)
+    positive_literals, negative_literals, all_literals = get_not_assigned_literals(clauses, positive_literals, negative_literals)
 
     stuck = 0
-    # zolang er nog clauseszijn om opgelost te worden, gaan we door met keuzes maken
+    solution_still_possible = 1
+    # zolang er nog clauses zijn om opgelost te worden, gaan we door met keuzes maken
     while clauses != [[]]:
 
-        # zolang er nog een simpele keuze te maken is, gaan we dat doen
-        if not stuck:
-            stuck = 1
+        while solution_still_possible:
 
-            # kijk per clause of er een tautologie in zit of het unit variable is
-            for clause in clauses:
-                if clause:
-                    print(clauses)
-                    print(clause)
+            # zolang er nog een simpele keuze te maken is, gaan we dat doen
+            if not stuck:
+                stuck = 1
 
-                    # check for tautology
-                    for literal in clause:
-                        if -literal in clause:
-                            print("tautology")
+                # kijk per clause of er een tautologie in zit of het unit variable is
+                for clause in clauses:
+                    if clause:
+                        print(clauses)
+                        print(clause)
 
-                            # remove -literal zodat we geen probleem met for loop krijgen
-                            clause.remove(-literal)
+                        # check for tautology
+                        for literal in clause:
+                            if -literal in clause:
+                                print("tautology")
+
+                                # remove -literal zodat we geen probleem met for loop krijgen
+                                clause.remove(-literal)
+                                clauses.remove(clause)
+
+                                # stuck veranderen zodat we nogmaals voor simpele oplossing gaan zoeken
+                                # (kan nu weer wat verandert zijn waardoor dit opnieuw kan)
+                                stuck = 0
+
+                        # check for unit clause
+                        if len(clause) == 1:
+                            print("unit")
+
+                            # unit_check(clause, positive_literals, negative_literals, all_literals, truthvalues)
+                            unit_clause = clause[0]
+                            truthvalues[unit_clause] = 1
+                            truthvalues[-unit_clause] = 0
+
+                            # truth value assigned, so literals can be removed from lists
+                            # (trying to find a better way to do this)
+                            all_literals.remove(unit_clause)
+                            if unit_clause in negative_literals:
+                                negative_literals.remove(unit_clause)
+                            if -unit_clause in negative_literals:
+                                negative_literals.remove(-unit_clause)
+                            if unit_clause in positive_literals:
+                                positive_literals.remove(unit_clause)
+                            if -unit_clause in positive_literals:
+                                positive_literals.remove(-unit_clause)
+
                             clauses.remove(clause)
-
-                            # stuck veranderen zodat we nogmaals voor simpele oplossing gaan zoeken
-                            # (kan nu weer wat verandert zijn waardoor dit opnieuw kan)
                             stuck = 0
 
-                    # check for unit clause
-                    if len(clause) == 1:
-                        print("unit")
-
-                        # unit_check(clause, positive_literals, negative_literals, all_literals, truthvalues)
-                        unit_clause = clause[0]
-                        truthvalues[unit_clause] = 1
-                        truthvalues[-unit_clause] = 0
-
-                        # truth value assigned, so literals can be removed from lists
-                        # (trying to find a better way to do this)
-                        all_literals.remove(unit_clause)
-                        if unit_clause in negative_literals:
-                            negative_literals.remove(unit_clause)
-                        if -unit_clause in negative_literals:
-                            negative_literals.remove(-unit_clause)
-                        if unit_clause in positive_literals:
-                            positive_literals.remove(unit_clause)
-                        if -unit_clause in positive_literals:
-                            positive_literals.remove(-unit_clause)
-
-                        clauses.remove(clause)
-                        stuck = 0
 
                 # gets difference of negative and positive literals, so gives the pure literals
                 list_of_pure_literals = pure_check(positive_literals, negative_literals)
-                print("list of literals")
+                print("list of pure literals")
                 print(list_of_pure_literals)
+
                 for literal in list_of_pure_literals:
                     truthvalues[literal] = 1
                     truthvalues[-literal] = 0
 
                     # denk dat hier iets fout gaat
-                    all_literals.remove(literal)
-                    all_literals.remove(-literal)
+                    if literal in list_of_pure_literals:
+                        all_literals.remove(literal)
 
-                # als de lijst niet leeg is, verwijder de lijst,
-                # zodat we de volgende keer weer dezelfde naam kunnen gebruiken voor de lijst.
-                if list_of_pure_literals:
-                    del list_of_pure_literals
-                    stuck = 0
+                    if -literal in list_of_pure_literals:
+                        all_literals.remove(-literal)
 
-                    # update list of clauses
-                    for clause in clauses:
-                        for truthvalue in truthvalues:
-                            if truthvalue in clause:
+                    if list_of_pure_literals:
+                        list_of_pure_literals = []
+                        stuck = 0
 
-                                # extra if loop omdat ik tussendoor clauses remove, doet anders raar...
-                                if clause in clauses:
 
-                                    # verwijder de clause waarin een waarde staat die al waar is.
-                                    if truthvalues[truthvalue]:
-                                        clauses.remove(clause)
+                clauses, truthvalues = update(clauses, truthvalues)
 
-                                    # verwijder een literal uit een clause waarvan je weet dat die niet waar is.
-                                    else:
-                                        clause.remove(truthvalue)
+                        # denk niet dat deze hier hoeft, maar laat hem voor zekerheid nog even staan
+                        # pure(clauses, positive_literals, negative_literals)
+            else:
+                # als er nog niets is gekozen, dan kiezen we een random literal die we waarde true geven
+                # en zetten deze in de lijst met decisions
+                split_bool = 1
+                while split_bool:
 
-                    # denk niet dat deze hier hoeft, maar laat hem voor zekerheid nog even staan
-                    # pure(clauses, positive_literals, negative_literals)
+                    if not decisions:
+                        choice = random_choice(all_literals)
+                        decisions.append([choice, "opposite not tried"])
+
+                        # als het inverse van de laatste decision nog niet is geprobeerd, probeer dat dan
+                    elif decisions[-1][1] == "opposite not tried":
+                        decisions.append([-decisions[-1][0], "opposite tried"])
+                        decisions.pop(-2)
+
+                    else:
+                        split_bool = 0
+
+                #else:
+                    # kijk naar de twee-na-laatste decision
+
         else:
-            decisions = []
-            split(all_literals, decisions)
-        # print(truthvalues)
+            old_decision = decisions.keys()[-1]
+            new_decision = - decisions.keys()[-1]
 
     print(truthvalues)
 

@@ -116,37 +116,46 @@ def main():
                         list_of_pure_literals = []
                         stuck = 0
 
-                clauses = update(clauses, truthvalues)
+                update(clauses, truthvalues)
                 print(clauses)
-                print("stuck")
-                print(stuck)
+                if clauses == [[]]:
+                    break
 
                         # denk niet dat deze hier hoeft, maar laat hem voor zekerheid nog even staan
                         # pure(clauses, positive_literals, negative_literals)
             else:
                 # als er nog niets is gekozen, dan kiezen we een random literal die we waarde true geven
                 # en zetten deze in de lijst met decisions.
-                split_bool = 1
-                while split_bool:
 
-                    if not decisions:
-                        choice = random_choice(all_literals)
-                        decisions.append([choice, "opposite not tried"])
+                # check of solution nog mogelijk is, anders: solution_still_possible = 0
 
-                        # als het inverse van de laatste decision nog niet is geprobeerd, probeer dat dan
-                    elif decisions[-1][1] == "opposite not tried":
-                        decisions.append([-decisions[-1][0], "opposite tried"])
-                        decisions.pop(-2)
 
-                    else:
-                        split_bool = 0
+                choice = random_choice(all_literals)
+                print(choice)
 
-                #else:
-                    # kijk naar de twee-na-laatste decision
+                decisions.append([choice, "opposite not tried"])
+                truthvalues[choice] = 1
+                truthvalues[-choice] = 0
+                updatelit(choice, negative_literals, positive_literals, all_literals)
+                update(clauses, truthvalues)
 
-        else:
-            old_decision = decisions.keys()[-1]
-            new_decision = - decisions.keys()[-1]
+                split_bool = 0
+                stuck = 0
+
+        # als we vast zitten (stuck = 1) dan gaan we backtracken.
+        # als het inverse van de laatste decision nog niet is geprobeerd, probeer dat dan.
+        if decisions[-1][1] == "opposite not tried":
+            decisions.append([-decisions[-1][0], "opposite tried"])
+            decisions.pop(-2)
+
+        # Kijk naar de decision ervoor.
+        elif decisions[-1][1] == "opposite tried":
+            del truthvalues[decisions[-1][0]]
+            del truthvalues[-decisions[-1][0]]
+            decisions.pop()
+            if not decisions:
+                print("unsolvable")
+
 
     print(truthvalues)
 

@@ -125,7 +125,7 @@ def main():
                         # pure(clauses, positive_literals, negative_literals)
             else:
                 # als er nog niets is gekozen, dan kiezen we een random literal die we waarde true geven
-                # en zetten deze in de lijst met decisions
+                # en zetten deze in de lijst met decisions.
                 split_bool = 1
                 while split_bool:
 

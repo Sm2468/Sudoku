@@ -4,6 +4,7 @@ from unitcheck import unit_check
 from purelit import get_not_assigned_literals
 from split import random_choice
 from updateclauses import update
+from update_literal import updatelit
 
 numbers_filled_in = []
 numbers_not_possible = []
@@ -17,8 +18,6 @@ getal = ""
 size = 9
 truthvalues = {}
 decisions = []
-
-
 
 def main():
     # inlezen van sudokus, maar voor nu gebruiken we nog het simpele voorbeeld.
@@ -35,7 +34,7 @@ def main():
     #print(clauses)
 
     # voorbeeld om te debuggen
-    clauses = [[2, -4], [4, 3], [-5], [-3, -2], [1, -1], [6, -5]]
+    clauses = [[2, -4], [4, 3], [1, -1], [-3, -2], [-5], [6, -5]]
 
     # make list to keep track of negative and positive literals that have no truth-value yet
     negative_literals = []
@@ -63,15 +62,15 @@ def main():
                         # check for tautology
                         for literal in clause:
                             if -literal in clause:
-                                print("tautology")
 
-                                # remove -literal zodat we geen probleem met for loop krijgen
-                                clause.remove(-literal)
+                                print("tautology")
                                 clauses.remove(clause)
+                                print(clauses)
 
                                 # stuck veranderen zodat we nogmaals voor simpele oplossing gaan zoeken
                                 # (kan nu weer wat verandert zijn waardoor dit opnieuw kan)
                                 stuck = 0
+                                break
 
                         # check for unit clause
                         if len(clause) == 1:
@@ -84,6 +83,9 @@ def main():
 
                             # truth value assigned, so literals can be removed from lists
                             # (trying to find a better way to do this)
+
+                            # updatelit(unit_clause, negative_literals, positive_literals, all_literals)
+
                             all_literals.remove(unit_clause)
                             if unit_clause in negative_literals:
                                 negative_literals.remove(unit_clause)
@@ -106,20 +108,18 @@ def main():
                 for literal in list_of_pure_literals:
                     truthvalues[literal] = 1
                     truthvalues[-literal] = 0
+                    print(truthvalues)
 
-                    # denk dat hier iets fout gaat
-                    if literal in list_of_pure_literals:
-                        all_literals.remove(literal)
-
-                    if -literal in list_of_pure_literals:
-                        all_literals.remove(-literal)
+                    updatelit(literal, negative_literals, positive_literals, all_literals)
 
                     if list_of_pure_literals:
                         list_of_pure_literals = []
                         stuck = 0
 
-
-                clauses, truthvalues = update(clauses, truthvalues)
+                clauses = update(clauses, truthvalues)
+                print(clauses)
+                print("stuck")
+                print(stuck)
 
                         # denk niet dat deze hier hoeft, maar laat hem voor zekerheid nog even staan
                         # pure(clauses, positive_literals, negative_literals)

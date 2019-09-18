@@ -14,4 +14,4 @@ def update(clauses, truthvalues):
                     # verwijder een literal uit een clause waarvan je weet dat die niet waar is.
                     else:
                         clause.remove(truthvalue)
-    return [clauses, truthvalues]
+    return clauses

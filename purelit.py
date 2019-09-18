@@ -12,5 +12,6 @@ def get_not_assigned_literals(clauses, positive_literals, negative_literals):
                 if literal not in positive_literals:
                     positive_literals.append(literal)
     all_literals = positive_literals + negative_literals
+    print(all_literals)
 
     return[positive_literals, negative_literals, all_literals]

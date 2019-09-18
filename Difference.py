@@ -8,7 +8,4 @@ def pure_check(listpos, listneg):
             if -i not in listpos or i not in listneg:
                 list_difference.append(i)
 
-    print("diff")
-    print(list_difference)
-
     return list_difference

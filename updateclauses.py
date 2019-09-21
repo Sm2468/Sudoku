@@ -1,16 +1,20 @@
 # update list of clauses
 def update(clauses, truthvalues):
-    for clause in clauses:
-        for truthvalue in truthvalues:
-            if truthvalue in clause:
+    for clause in [*clauses]:
+        clause_not_removed = True
+        for literal in [*truthvalues]:
 
-                # extra if loop omdat ik tussendoor clauses remove, doet anders raar...
-                if clause in clauses:
+            if (literal in clause) & clause_not_removed:
+                # verwijder de clause waarin een waarde staat die al waar is.
+                if truthvalues[literal]:
+                    clauses.remove(clause)
+                    clause_not_removed = False
+                if -literal in clause:
+                    clause.remove(-literal)
 
-                    # verwijder de clause waarin een waarde staat die al waar is.
-                    if truthvalues[truthvalue]:
-                        clauses.remove(clause)
-
-                    # verwijder een literal uit een clause waarvan je weet dat die niet waar is.
-                    if not truthvalues[truthvalue]:
-                        clause.remove(truthvalue)
+                # verwijder een literal uit een clause waarvan je weet dat die niet waar is.
+                if not truthvalues[literal]:
+                    clause.remove(literal)
+                if -literal in clause:
+                    clauses.remove(clause)
+                    clause_not_removed = False

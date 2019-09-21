@@ -9,13 +9,14 @@ from update_literal import updatelit
 numbers_filled_in = []
 numbers_not_possible = []
 statements = []
-row = ""
-column = ""
-getal = ""
 # Size moet uit het grote document met meerdere oplossingen gehaald worden.
 # de sudokus uit dit document gaan we veranderen naar de vorm van sudoku-example,
 # zodat we onderstaande code daarvoor kunnen gebruiken.
 size = 9
+# new_truthvalues gives the literal and bool 1 if it is positive and bool 0 if it is negative
+# new_truthvalues = {}
+
+# to keep track of all the truthvalues
 truthvalues = {}
 decisions = []
 
@@ -45,59 +46,63 @@ def main():
     stuck = 0
     solution_still_possible = 1
     # zolang er nog clauses zijn om opgelost te worden, gaan we door met keuzes maken
-    while clauses != [[]]:
+    while clauses:
 
         while solution_still_possible:
 
             # zolang er nog een simpele keuze te maken is, gaan we dat doen
             if not stuck:
+
+                for clause in clauses:
+                    if not clause:
+                         solution_still_possible = 0
+
                 stuck = 1
 
                 # kijk per clause of er een tautologie in zit of het unit variable is
-                for clause in clauses:
-                    if clause:
-                        print(clauses)
-                        print(clause)
+                for clause in [*clauses]:
+                    print(clauses)
+                    print(clause)
 
-                        # check for tautology
-                        for literal in clause:
-                            if -literal in clause:
+                    # check for tautology
+                    for literal in clause:
+                        if -literal in clause:
 
-                                print("tautology")
-                                clauses.remove(clause)
-                                print(clauses)
-
-                                # stuck veranderen zodat we nogmaals voor simpele oplossing gaan zoeken
-                                # (kan nu weer wat verandert zijn waardoor dit opnieuw kan)
-                                stuck = 0
-                                break
-
-                        # check for unit clause
-                        if len(clause) == 1:
-                            print("unit")
-
-                            # unit_check(clause, positive_literals, negative_literals, all_literals, truthvalues)
-                            unit_clause = clause[0]
-                            truthvalues[unit_clause] = 1
-                            truthvalues[-unit_clause] = 0
-
-                            # truth value assigned, so literals can be removed from lists
-                            # (trying to find a better way to do this)
-
-                            # updatelit(unit_clause, negative_literals, positive_literals, all_literals)
-
-                            all_literals.remove(unit_clause)
-                            if unit_clause in negative_literals:
-                                negative_literals.remove(unit_clause)
-                            if -unit_clause in negative_literals:
-                                negative_literals.remove(-unit_clause)
-                            if unit_clause in positive_literals:
-                                positive_literals.remove(unit_clause)
-                            if -unit_clause in positive_literals:
-                                positive_literals.remove(-unit_clause)
-
+                            print("tautology")
                             clauses.remove(clause)
+                            print(clauses)
+
+                            # stuck veranderen zodat we nogmaals voor simpele oplossing gaan zoeken
+                            # (kan nu weer wat verandert zijn waardoor dit opnieuw kan)
                             stuck = 0
+                            break
+
+                    # check for unit clause
+                    if len(clause) == 1:
+                        print("unit")
+
+                        # unit_check(clause, positive_literals, negative_literals, all_literals, truthvalues)
+                        unit_clause = clause[0]
+                        truthvalues[unit_clause] = 1
+                        truthvalues[-unit_clause] = 0
+
+                        # truth value assigned, so literals can be removed from lists
+                        # (trying to find a better way to do this)
+
+                        updatelit(unit_clause, negative_literals, positive_literals, all_literals)
+
+                        #all_literals.remove(unit_clause)
+                        #if unit_clause in negative_literals:
+                        #    negative_literals.remove(unit_clause)
+                        #if -unit_clause in negative_literals:
+                        #    negative_literals.remove(-unit_clause)
+                        #if unit_clause in positive_literals:
+                        #    positive_literals.remove(unit_clause)
+                        #if -unit_clause in positive_literals:
+                        #    positive_literals.remove(-unit_clause)
+
+                        update(clauses, truthvalues)
+                        stuck = 0
 
 
                 # gets difference of negative and positive literals, so gives the pure literals
@@ -118,7 +123,7 @@ def main():
 
                 update(clauses, truthvalues)
                 print(clauses)
-                if clauses == [[]]:
+                if clauses == []:
                     break
 
                         # denk niet dat deze hier hoeft, maar laat hem voor zekerheid nog even staan
@@ -128,7 +133,6 @@ def main():
                 # en zetten deze in de lijst met decisions.
 
                 # check of solution nog mogelijk is, anders: solution_still_possible = 0
-
 
                 choice = random_choice(all_literals)
                 print(choice)
@@ -155,7 +159,6 @@ def main():
             decisions.pop()
             if not decisions:
                 print("unsolvable")
-
 
     print(truthvalues)
 

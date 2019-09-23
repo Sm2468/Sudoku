@@ -1,5 +1,5 @@
 # update list of clauses
-def update(clauses, truthvalues):
+def update_clauses(clauses, truthvalues):
     for clause in [*clauses]:
         clause_not_removed = True
         for literal in [*truthvalues]:
@@ -18,3 +18,20 @@ def update(clauses, truthvalues):
                 if -literal in clause:
                     clauses.remove(clause)
                     clause_not_removed = False
+
+
+def update_literals(literal, negative_literals, positive_literals, all_literals):
+
+    all_literals.remove(literal)
+    if -literal in all_literals:
+        all_literals.remove(-literal)
+
+    if literal in negative_literals:
+        negative_literals.remove(literal)
+    if -literal in negative_literals:
+        negative_literals.remove(-literal)
+    if literal in positive_literals:
+        positive_literals.remove(literal)
+    if -literal in positive_literals:
+        positive_literals.remove(-literal)
+

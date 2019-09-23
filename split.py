@@ -1,12 +1,8 @@
 import random
+from copy import deepcopy
+from main import dp
 
+from heuristics1 import heuristic1
+from main import decisions
+from updates import update_literals, update_clauses
 
-def random_choice(literals):
-    # hierin wil ik eerst random splitten en dan heuristiek toevoegen
-
-    new_choice = random.choice(literals)
-
-    print(new_choice)
-    print(literals)
-
-    return new_choice

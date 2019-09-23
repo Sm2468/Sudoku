@@ -1,4 +1,4 @@
-def updatelit(literal, negative_literals, positive_literals, all_literals):
+def update_lit(literal, negative_literals, positive_literals, all_literals):
 
     all_literals.remove(literal)
     if -literal in all_literals:

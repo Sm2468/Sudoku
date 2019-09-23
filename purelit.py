@@ -1,4 +1,4 @@
-def get_not_assigned_literals(clauses, positive_literals, negative_literals):
+def get_not_yet_assigned_literals(clauses, positive_literals, negative_literals):
     for clause in clauses:
         for literal in clause:
 

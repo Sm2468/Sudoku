@@ -1,4 +1,4 @@
-def pure_check(listpos, listneg):
+def get_pure_literals(listpos, listneg):
     list_difference = []
     for i in listpos + listneg:
         if i > 0:

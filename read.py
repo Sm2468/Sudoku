@@ -16,4 +16,5 @@ def readin(file):
     assert len(cnf[-1]) == 0
     cnf.pop()
 
+    print(maxvar)
     return cnf

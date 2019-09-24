@@ -173,14 +173,15 @@ def main():
     rules = sudoku_rules.readlines()
     sudoku_rules.close()
 
-    clauses = readin(rules)
+    # uncomment to get sudoku to be tested
+    #clauses = readin(rules)
 
-    for filled_in in sudoku_unsolved:
-        clauses.insert(0, filled_in)
-        print(clauses)
+    #for filled_in in sudoku_unsolved:
+    #    clauses.insert(0, filled_in)
+    #    print(clauses)
 
     # voorbeeld om te debuggen
-    #clauses = [[2, -4], [4, 3], [1, -1], [-3, -2], [-5], [6, -5]]
+    clauses = [[2, -4], [4, 3], [1, -1], [-3, -2], [-5], [6, -5]]
 
     # make list to keep track of negative and positive literals that have no truth-value yet
     negative_literals = []

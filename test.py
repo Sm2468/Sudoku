@@ -23,3 +23,22 @@ def simplify(clauses: List[Set[int]], literals: Set[int]):
 sort: List[Tuple[int, int]] = [*sorted(unresolved_frq.items(), key=lambda x: x[1], reverse=True)]
 
 # use of absolute value when checking if a literal is in a list.
+
+
+def check_unit_clause(clause, truthvalues, negative_literals, positive_literals, all_literals):
+    if len(clause) == 1:
+        print("unit")
+        print(clause)
+
+        # unit_check(clause[0], positive_literals, negative_literals, all_literals, truthvalues)
+        unit_clause = clause[0]
+        truthvalues[unit_clause] = True
+        truthvalues[-unit_clause] = False
+
+        # truth value assigned, so literals can be removed from lists
+        # (trying to find a better way to do this)
+
+        update_literals(unit_clause, negative_literals, positive_literals, all_literals)
+
+        update_clauses(clauses, truthvalues)
+        stuck = False

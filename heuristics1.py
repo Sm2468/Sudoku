@@ -1,5 +1,6 @@
 import operator
 
+
 def heuristic1(clauses):
     # count how many times all literals occur and then pick the highest value for the split.
 
